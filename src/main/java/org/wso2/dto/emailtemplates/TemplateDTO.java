@@ -1,16 +1,18 @@
-package org.wso2.dto;
+package org.wso2.dto.emailtemplates;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
-public class CategoryDTO {
+@Builder
+public class TemplateDTO {
+    private String contentType;
+    private String subject;
+    private String body;
+    private String footer;
     private String id;
-    private String name;
-    private List<ConnectorDTO> connectors;
 }

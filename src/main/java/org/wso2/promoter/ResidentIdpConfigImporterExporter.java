@@ -1,4 +1,4 @@
-package org.wso2.importerExporter;
+package org.wso2.promoter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,10 +7,10 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.wso2.Main;
-import org.wso2.dto.CategoryDTO;
-import org.wso2.dto.ConnectorDTO;
 import org.wso2.dto.Constants;
-import org.wso2.dto.PatchRequestDTO;
+import org.wso2.dto.residentidp.CategoryDTO;
+import org.wso2.dto.residentidp.ConnectorDTO;
+import org.wso2.dto.residentidp.PatchRequestDTO;
 import org.wso2.util.FilesHelper;
 import org.wso2.util.RestHelper;
 
@@ -29,13 +29,12 @@ import static org.wso2.util.RestHelper.getEncodedCredentials;
 /**
  * This class is used to export the Resident IdP configuration.
  */
-public class ResidentIdpConfigImporterExporterImpl implements ConfigImporterExporter {
+public class ResidentIdpConfigImporterExporter extends AbstractConfigImporterExporter {
 
-    public void importConfig(String plainDestinationCredentials, String destinationURL) throws IOException {
-        String patchURL = destinationURL + "/t/carbon.super/api/server/v1/identity-governance/" +
-                ":categoryId/connectors/:connectorId";
+    protected void processInputFiles(String plainDestinationCredentials, String patchURL,
+                                     File[] files) throws IOException {
+
         ObjectMapper objectMapper = new ObjectMapper();
-        File[] files = FilesHelper.getFiles();
         for (File file : files) {
             List<ConnectorDTO> connectorDTOS = FilesHelper.readYaml(file, ConnectorDTO.class);
             for (ConnectorDTO connectorDTO : connectorDTOS) {
@@ -54,14 +53,10 @@ public class ResidentIdpConfigImporterExporterImpl implements ConfigImporterExpo
                 try {
                     patchResponse = patchRequest.execute().returnResponse();
                     if (patchResponse.getStatusLine().getStatusCode() == 200) {
-                        System.out.println("Successfully patched connector: " + connectorDTO.getName());
-                        System.out.println("With properties:");
-                        patchRequestDTO.getProperties().forEach(p -> System.out.println(
-                                p.getName() + ":" + p.getValue())
-                        );
+                       Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Update successful");
                     }
                 } catch (IOException e) {
-                    Logger.getLogger(ResidentIdpConfigImporterExporterImpl.class.getName())
+                    Logger.getLogger(ResidentIdpConfigImporterExporter.class.getName())
                             .log(Level.SEVERE, e.getMessage(), e);
                 }
             }

@@ -1,7 +1,7 @@
 package org.wso2;
 
-import org.wso2.importerExporter.ConfigImporterExporter;
-import org.wso2.importerExporter.ResidentIdpConfigImporterExporterImpl;
+import org.wso2.promoter.ConfigImporterExporter;
+import org.wso2.promoter.ResidentIdpConfigImporterExporter;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        ConfigImporterExporter residentIdpConfigImpExp = new ResidentIdpConfigImporterExporterImpl();
+        ConfigImporterExporter residentIdpConfigImpExp = new ResidentIdpConfigImporterExporter();
 
         if (args.length < 3) {
             Logger.getLogger(Main.class.getName()).log(Level.INFO, "Invalid arguments");
@@ -28,7 +28,8 @@ public class Main {
             String plainCredentials = args[1];
             String url = args[2];
             if (action.equals("--import")) {
-                residentIdpConfigImpExp.importConfig(plainCredentials, url);
+                residentIdpConfigImpExp.importConfig(plainCredentials, url,
+                        "/t/carbon.super/api/server/v1/identity-governance/:categoryId/connectors/:connectorId");
             } else if (action.equals("--export")) {
                 residentIdpConfigImpExp.exportConfig(plainCredentials, url);
             }

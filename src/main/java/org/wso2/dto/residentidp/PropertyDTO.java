@@ -1,4 +1,4 @@
-package org.wso2.dto;
+package org.wso2.dto.residentidp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

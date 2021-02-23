@@ -1,4 +1,4 @@
-package org.wso2.dto;
+package org.wso2.dto.emailtemplates;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -9,8 +9,8 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
-public class ConnectorDTO {
+public class TemplateTypeDTO {
+    private String displayName;
     private String id;
-    private String name;
-    private List<PropertyDTO> properties;
+    private List<TemplateDTO> templates;
 }

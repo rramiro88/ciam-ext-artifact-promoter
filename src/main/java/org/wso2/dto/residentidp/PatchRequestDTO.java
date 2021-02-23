@@ -1,4 +1,4 @@
-package org.wso2.dto;
+package org.wso2.dto.residentidp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

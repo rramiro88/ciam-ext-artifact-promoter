@@ -1,4 +1,4 @@
-package org.wso2.importerExporter;
+package org.wso2.promoter;
 
 import java.io.IOException;
 
@@ -7,5 +7,6 @@ import java.io.IOException;
  */
 public interface ConfigImporterExporter {
     void exportConfig(String plainSourceCredentials, String sourceURL) throws IOException;
-    void importConfig(String plainDestinationCredentials, String destinationURL) throws IOException;
+    void importConfig(String plainDestinationCredentials, String destinationURL, String endpointPath)
+            throws IOException;
 }
