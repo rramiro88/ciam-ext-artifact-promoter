@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -77,5 +78,11 @@ public class FilesHelper {
                 PropertiesUtil.readProperty(Constants.FILES_FOLDER));
         File folder = new File(PropertiesUtil.readProperty(Constants.FILES_FOLDER));
         return folder.listFiles();
+    }
+
+    public static <T> List<T> parseResponse(InputStream content, Class<T> cls) throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        JavaType type = om.getTypeFactory().constructCollectionType(List.class, cls);
+        return om.readValue(content, type);
     }
 }

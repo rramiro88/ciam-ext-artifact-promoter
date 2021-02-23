@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
+/**
+ * This is a general DTO, only consisting in id and name, common to all rest calls.
+ */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
-public class CategoryDTO {
+public class GeneralCategoryDTO {
     private String id;
     private String name;
-    private List<ConnectorDTO> connectors;
 }

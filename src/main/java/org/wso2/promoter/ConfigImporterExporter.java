@@ -7,6 +7,6 @@ import java.io.IOException;
  */
 public interface ConfigImporterExporter {
     void exportConfig(String plainSourceCredentials, String sourceURL) throws IOException;
-    void importConfig(String plainDestinationCredentials, String destinationURL, String endpointPath)
+    void importConfig(String plainDestinationCredentials, String destinationURL)
             throws IOException;
 }
