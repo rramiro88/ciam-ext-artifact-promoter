@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+/**
+ * DTO for residentIdP rest calls.
+ */
 @Data
 @Builder
 @AllArgsConstructor

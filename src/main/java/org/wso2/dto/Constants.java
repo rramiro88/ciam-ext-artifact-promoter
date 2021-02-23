@@ -10,4 +10,6 @@ public interface Constants {
     String RESIDENT_IDP = "residentIdP";
     String EMAIL_TEMPLATES = "emailTemplates";
     String CLAIMS = "claims";
+    String TEMP_FOLDER = "tempFolder";
+
 }

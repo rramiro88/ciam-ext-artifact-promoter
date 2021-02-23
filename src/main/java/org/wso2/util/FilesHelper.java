@@ -10,7 +10,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -18,23 +20,25 @@ import java.util.zip.ZipInputStream;
  * This class is used to help with files related tasks.
  */
 public class FilesHelper {
-    public static void writeYaml(Object input, String name) throws IOException {
+    public static void writeYaml(Object input, String name, String folderName) throws IOException {
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
-        File file = new File(PropertiesUtil.readProperty("filesFolder") + "/" + name + ".yaml");
+        File file = new File(PropertiesUtil.readProperty("filesFolder") + folderName +
+                "/" + name + ".yaml");
         file.getParentFile().mkdirs();
         om.writeValue(file, input);
     }
 
-    public static String removeSpaces(String source) {
-
-        return source.replace(" ", "");
-    }
-
-    public static <T> List<T> readYaml(File file, Class<T> cls) throws IOException {
+    public static <T> List<T> readListYaml(File file, Class<T> cls) throws IOException {
 
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
         JavaType type = om.getTypeFactory().constructCollectionType(List.class, cls);
         return om.readValue(file, type);
+    }
+
+    public static <T> T readSingleObjectYaml(File file, Class<T> cls) throws IOException {
+
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+        return om.readValue(file, cls);
     }
 
     public static void extractAll(String zipFile, String destinationFolder) throws IOException {
@@ -72,17 +76,30 @@ public class FilesHelper {
         return destFile;
     }
 
-    public static File[] getFiles() throws IOException {
+    public static List<File> getFiles() throws IOException {
 
         extractAll(PropertiesUtil.readProperty(Constants.ZIP_PATH),
-                PropertiesUtil.readProperty(Constants.FILES_FOLDER));
-        File folder = new File(PropertiesUtil.readProperty(Constants.FILES_FOLDER));
-        return folder.listFiles();
+                PropertiesUtil.readProperty(Constants.TEMP_FOLDER));
+        File folder = new File(PropertiesUtil.readProperty(Constants.TEMP_FOLDER));
+        return Arrays.stream(folder.listFiles()).filter(File::isFile).collect(Collectors.toList());
     }
 
-    public static <T> List<T> parseResponse(InputStream content, Class<T> cls) throws IOException {
+    public static <T> List<T> parseResponseToList(InputStream content, Class<T> cls) throws IOException {
         ObjectMapper om = new ObjectMapper();
         JavaType type = om.getTypeFactory().constructCollectionType(List.class, cls);
         return om.readValue(content, type);
+    }
+
+    public static <T> T parseResponseToObject(InputStream content, Class<T> cls) throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        return om.readValue(content, cls);
+    }
+
+    public static void cleanTempFolder() {
+        File folder = new File(PropertiesUtil.readProperty(Constants.TEMP_FOLDER));
+        for (File file : folder.listFiles()) {
+            file.delete();
+        }
+        folder.delete();
     }
 }

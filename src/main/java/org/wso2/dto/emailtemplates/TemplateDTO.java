@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO for email templates rest calls.
+ */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Builder

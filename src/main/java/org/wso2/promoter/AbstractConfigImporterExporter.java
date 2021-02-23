@@ -10,27 +10,44 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Abstract class with common behavior.
- * @param <T> the class of item-level element.
  */
-public abstract class AbstractConfigImporterExporter<T> implements ConfigImporterExporter {
+public abstract class AbstractConfigImporterExporter implements ConfigImporterExporter {
 
     protected String patchEndpointPath;
     protected String getCategoryPath;
     protected String getItemPath;
-    protected Class<T> itemClass;
 
+    /**
+     * This method implementation must contain the specific logic to process
+     * the files during the import process.
+     * @param plainDestinationCredentials
+     * @param patchURL
+     * @param files
+     * @throws IOException
+     */
     protected abstract void processInputFiles(String plainDestinationCredentials, String patchURL,
-                                              File[] files) throws IOException;
+                                              List<File> files) throws IOException;
+
+    /**
+     * This method implementation must contain the specific logic to handle the rest response
+     * and save it into yaml files.
+     * @param getItemsURL
+     * @param categoryDTOS
+     * @param base64SourceCredentials
+     * @throws IOException
+     */
+    protected abstract void saveResponseToFiles(String getItemsURL, List<GeneralCategoryDTO> categoryDTOS,
+                                                String base64SourceCredentials) throws IOException;
 
     public void importConfig(String plainDestinationCredentials, String destinationApiURL) throws IOException {
 
         String patchURL = destinationApiURL + patchEndpointPath;
-        File[] files = FilesHelper.getFiles();
+        List<File> files = FilesHelper.getFiles();
         processInputFiles(plainDestinationCredentials, patchURL, files);
+        FilesHelper.cleanTempFolder();
     }
 
     @Override
@@ -45,19 +62,10 @@ public abstract class AbstractConfigImporterExporter<T> implements ConfigImporte
         getCategoriesRequest.setHeader("Authorization", "Basic " + base64SourceCredentials);
         HttpResponse httpResponse = getCategoriesRequest.execute().returnResponse();
         if (httpResponse.getEntity() != null) {
-            categoryDTOS = FilesHelper.parseResponse(httpResponse.getEntity().getContent(), GeneralCategoryDTO.class);
+            categoryDTOS = FilesHelper.parseResponseToList(httpResponse.getEntity().getContent(),
+                    GeneralCategoryDTO.class);
         }
-        for (GeneralCategoryDTO categoryDTO : categoryDTOS) {
-            Request getConnectorsRequest = Request.Get(parametrizeURL(getItemsURL, categoryDTO.getId()));
-            getConnectorsRequest.setHeader("Authorization", "Basic " + base64SourceCredentials);
-            HttpResponse connectorsResponse = getConnectorsRequest.execute().returnResponse();
-            if (Objects.nonNull(connectorsResponse)) {
-                List<T> itemDTOs = FilesHelper.parseResponse(connectorsResponse.getEntity().getContent(), itemClass);
-                FilesHelper.writeYaml(itemDTOs, FilesHelper.removeSpaces(
-                        EncoderHelper.decodeId(categoryDTO.getId()) + "-" + categoryDTO.getId())
-                );
-            }
-        }
+        saveResponseToFiles(getItemsURL, categoryDTOS, base64SourceCredentials);
     }
 
     protected String parametrizeURL(String url, String categoryId) {

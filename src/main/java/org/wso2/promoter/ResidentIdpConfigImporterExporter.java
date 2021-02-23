@@ -7,36 +7,56 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.wso2.dto.Constants;
 import org.wso2.dto.residentidp.ConnectorDTO;
+import org.wso2.dto.residentidp.GeneralCategoryDTO;
 import org.wso2.dto.residentidp.PatchRequestDTO;
-import org.wso2.util.FilesHelper;
 import org.wso2.util.EncoderHelper;
+import org.wso2.util.FilesHelper;
+import org.wso2.util.PropertiesUtil;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * This class is used to export the Resident IdP configuration.
  */
-public class ResidentIdpConfigImporterExporter extends AbstractConfigImporterExporter<ConnectorDTO> {
+public class ResidentIdpConfigImporterExporter extends AbstractConfigImporterExporter {
 
     public ResidentIdpConfigImporterExporter(String patchEndpointPath, String getCategoryPath, String getItemPath) {
         super.patchEndpointPath = patchEndpointPath;
         super.getCategoryPath = getCategoryPath;
         super.getItemPath = getItemPath;
-        super.itemClass = ConnectorDTO.class;
+    }
+
+    @Override
+    protected void saveResponseToFiles(String getItemsURL, List<GeneralCategoryDTO> categoryDTOS,
+                                       String base64SourceCredentials) throws IOException {
+        for (GeneralCategoryDTO categoryDTO : categoryDTOS) {
+            Request getConnectorsRequest = Request.Get(parametrizeURL(getItemsURL, categoryDTO.getId()));
+            getConnectorsRequest.setHeader("Authorization", "Basic " + base64SourceCredentials);
+            HttpResponse connectorsResponse = getConnectorsRequest.execute().returnResponse();
+            if (Objects.nonNull(connectorsResponse)) {
+                List<ConnectorDTO> itemDTOs =
+                        FilesHelper.parseResponseToList(connectorsResponse.getEntity().getContent(),
+                                ConnectorDTO.class);
+                FilesHelper.writeYaml(itemDTOs, EncoderHelper.decodeId(categoryDTO.getId()),
+                        PropertiesUtil.readProperty("folderNameResidentIdp"));
+            }
+        }
     }
 
     protected void processInputFiles(String plainDestinationCredentials, String patchURL,
-                                     File[] files) throws IOException {
+                                     List<File> files) throws IOException {
 
         ObjectMapper objectMapper = new ObjectMapper();
         for (File file : files) {
-            List<ConnectorDTO> connectorDTOS = FilesHelper.readYaml(file, ConnectorDTO.class);
+            List<ConnectorDTO> connectorDTOS = FilesHelper.readListYaml(file, ConnectorDTO.class);
             for (ConnectorDTO connectorDTO : connectorDTOS) {
-                String categoryId = file.getName().split("-")[1].split("\\.")[0];
+                String categoryId = EncoderHelper.encodeName(file.getName().split("\\.")[0]);
                 Request patchRequest = Request.Patch(parametrizeURL(patchURL, categoryId, connectorDTO.getId()));
                 patchRequest.setHeader("Authorization", "Basic "
                         + EncoderHelper.getEncodedCredentials(plainDestinationCredentials));
