@@ -9,6 +9,6 @@ zipPath -> the path where the zip file is located, for --import mode.
 
 Usage:
 
-Exporter: java -jar ciam-ext-artifact-promoter.jar --export user:pass https://sourceURL:port
+Exporter: java -jar ciam-ext-artifact-promoter.jar --export entityName user:pass https://sourceURL:port
 
-Importer: java -jar ciam-ext-artifact-promoter.jar --import user:pass https://destinationURL:port
+Importer: java -jar ciam-ext-artifact-promoter.jar --import entityName user:pass https://destinationURL:port
