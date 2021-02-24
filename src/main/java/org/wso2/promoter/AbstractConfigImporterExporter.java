@@ -19,6 +19,7 @@ public abstract class AbstractConfigImporterExporter implements ConfigImporterEx
     protected String patchEndpointPath;
     protected String getCategoryPath;
     protected String getItemPath;
+    protected String baseFolder;
 
     /**
      * This method implementation must contain the specific logic to process
@@ -45,7 +46,7 @@ public abstract class AbstractConfigImporterExporter implements ConfigImporterEx
     public void importConfig(String plainDestinationCredentials, String destinationApiURL) throws IOException {
 
         String patchURL = destinationApiURL + patchEndpointPath;
-        List<File> files = FilesHelper.getFiles();
+        List<File> files = FilesHelper.getFiles(baseFolder);
         processInputFiles(plainDestinationCredentials, patchURL, files);
         FilesHelper.cleanTempFolder();
     }

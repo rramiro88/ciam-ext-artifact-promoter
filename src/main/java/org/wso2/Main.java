@@ -4,7 +4,6 @@ import org.wso2.dto.Constants;
 import org.wso2.promoter.ConfigImporterExporter;
 import org.wso2.promoter.EmailTemplateConfigImporterExporter;
 import org.wso2.promoter.ResidentIdpConfigImporterExporter;
-import org.wso2.util.PropertiesUtil;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -23,22 +22,21 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        if (args.length < 4) {
+        if (args.length < 6) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Invalid arguments");
         } else {
             String action = args[0];
             String entity = args[1];
-            String plainCredentials = args[2];
-            String url = args[3];
+            String option = args[2];
+            String baseFolder = args[3];
+            String plainCredentials = args[4];
+            String url = args[5];
 
             switch (entity) {
                 case Constants.RESIDENT_IDP: {
-                    String patchEndpointPath = PropertiesUtil.readProperty("patchPathResidentIdp");
-                    String getCategoryPath = PropertiesUtil.readProperty("getCategoryPathResidentIdp");
-                    String getItemPath = PropertiesUtil.readProperty("getItemPathResidentIdp");
                     ConfigImporterExporter residentIdpConfigImpExp =
-                            new ResidentIdpConfigImporterExporter(patchEndpointPath,
-                                    getCategoryPath, getItemPath);
+                            new ResidentIdpConfigImporterExporter(Constants.PATCH_PATH_RIDP,
+                                    Constants.GET_CATEGORY_PATH_RIDP, Constants.GET_ITEM_PATH_RIDP, baseFolder);
                     if (action.equals("--import")) {
                         residentIdpConfigImpExp.importConfig(plainCredentials, url);
                     } else if (action.equals("--export")) {
@@ -47,11 +45,10 @@ public class Main {
                     break;
                 }
                 case Constants.EMAIL_TEMPLATES: {
-                    String patchEndpointPath = PropertiesUtil.readProperty("patchPathEmailTemplates");
-                    String getCategoryPath = PropertiesUtil.readProperty("getCategoryPathEmailTemplates");
-                    String getItemPath = PropertiesUtil.readProperty("getItemPathEmailTemplates");
                     ConfigImporterExporter emailTemplatesConfigImpExp =
-                            new EmailTemplateConfigImporterExporter(patchEndpointPath, getCategoryPath, getItemPath);
+                            new EmailTemplateConfigImporterExporter(Constants.PATCH_PATH_EMAIL_TEMPLATES,
+                                    Constants.GET_CATEGORY_PATH_EMAIL_TEMPLATES,
+                                    Constants.GET_ITEM_PATH_EMAIL_TEMPLATES, baseFolder);
                     if (action.equals("--import")) {
                         emailTemplatesConfigImpExp.importConfig(plainCredentials, url);
                     } else if (action.equals("--export")) {

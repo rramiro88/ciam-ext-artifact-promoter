@@ -5,11 +5,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.wso2.dto.Constants;
 import org.wso2.dto.emailtemplates.TemplateTypeDTO;
 import org.wso2.dto.residentidp.GeneralCategoryDTO;
 import org.wso2.util.EncoderHelper;
 import org.wso2.util.FilesHelper;
-import org.wso2.util.PropertiesUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,10 +24,12 @@ import java.util.logging.Logger;
  */
 public class EmailTemplateConfigImporterExporter extends AbstractConfigImporterExporter {
 
-    public EmailTemplateConfigImporterExporter(String patchEndpointPath, String getCategoryPath, String getItemPath) {
-        super.patchEndpointPath = patchEndpointPath;
-        super.getCategoryPath = getCategoryPath;
-        super.getItemPath = getItemPath;
+    public EmailTemplateConfigImporterExporter(String patchEndpointPath, String getCategoryPath, String getItemPath,
+                                               String baseFolder) {
+        this.patchEndpointPath = patchEndpointPath;
+        this.getCategoryPath = getCategoryPath;
+        this.getItemPath = getItemPath;
+        this.baseFolder = baseFolder;
     }
 
     @Override
@@ -65,7 +67,7 @@ public class EmailTemplateConfigImporterExporter extends AbstractConfigImporterE
                         FilesHelper.parseResponseToObject(connectorsResponse.getEntity().getContent(),
                                 TemplateTypeDTO.class);
                 FilesHelper.writeYaml(templateTypeDTO, EncoderHelper.decodeId(categoryDTO.getId()),
-                        PropertiesUtil.readProperty("folderNameEmailTemplates"));
+                        Constants.FOLDER_NAME_EMAIL_TEMPLATES, baseFolder);
             }
         }
     }

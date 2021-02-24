@@ -20,9 +20,12 @@ import java.util.zip.ZipInputStream;
  * This class is used to help with files related tasks.
  */
 public class FilesHelper {
-    public static void writeYaml(Object input, String name, String folderName) throws IOException {
+
+    private static String tempFolder;
+
+    public static void writeYaml(Object input, String name, String folderName, String baseFolder) throws IOException {
         ObjectMapper om = new ObjectMapper(new YAMLFactory());
-        File file = new File(PropertiesUtil.readProperty("filesFolder") + folderName +
+        File file = new File(baseFolder + folderName +
                 "/" + name + ".yaml");
         file.getParentFile().mkdirs();
         om.writeValue(file, input);
@@ -76,11 +79,13 @@ public class FilesHelper {
         return destFile;
     }
 
-    public static List<File> getFiles() throws IOException {
+    public static List<File> getFiles(String zipPath) throws IOException {
 
-        extractAll(PropertiesUtil.readProperty(Constants.ZIP_PATH),
-                PropertiesUtil.readProperty(Constants.TEMP_FOLDER));
-        File folder = new File(PropertiesUtil.readProperty(Constants.TEMP_FOLDER));
+        File file = new File(zipPath);
+        String destinationFolder = file.getParentFile().getPath() + Constants.TEMP_FOLDER;
+        tempFolder = destinationFolder;
+        extractAll(zipPath, destinationFolder);
+        File folder = new File(destinationFolder);
         return Arrays.stream(folder.listFiles()).filter(File::isFile).collect(Collectors.toList());
     }
 
@@ -96,7 +101,7 @@ public class FilesHelper {
     }
 
     public static void cleanTempFolder() {
-        File folder = new File(PropertiesUtil.readProperty(Constants.TEMP_FOLDER));
+        File folder = new File(tempFolder);
         for (File file : folder.listFiles()) {
             file.delete();
         }
